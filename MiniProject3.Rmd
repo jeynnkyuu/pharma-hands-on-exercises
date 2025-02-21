@@ -59,7 +59,7 @@ library(rio)
 2.   Read in the CDISC adsl data from the GitHub location (`https://github.com/phuse-org/phuse-scripts/raw/master/data/adam/cdisc/adsl.xpt`) and assign this to an object in R using the assignment operator `<-`. Make sure that the URL location is a character string by enclosing it in `" "`. The `rio` package has a function called `import` that reads data into R and infers the data type from the file name. The first argument of that function is `file`. Paste the file path / URL above after the `file=` argument in the code below, then run the chunk using the green arrow.
 
 ```{r read_adsl}
-adsl <- import( file = ""  )
+adsl <- import( file = "https://github.com/phuse-org/phuse-scripts/raw/master/data/adam/cdisc/adsl.xpt"  )
 adsl
 ```
 
@@ -67,7 +67,7 @@ Next filter the adsl dataset where the EFFFL variable has the value "Y" (as we d
 
 ```{r create_adsl_eff}
 adsl_eff <- adsl %>%
-  filter(  ) %>%
+  filter( EFFFL=="Y" ) %>%
   mutate(SEX = recode(SEX, "M" = "Male", "F" = "Female")) 
 ```
 
@@ -85,7 +85,7 @@ The {dplyr} package has a function called `summarize()` that will calculate vari
 
 ```{r}
 adsl_eff %>%
-  group_by(  ) %>% 
+  group_by( TRT01AN, TRT01A, SEX ) %>% 
   summarize(mean =(mean(AGE)))
 ```
 
@@ -95,8 +95,8 @@ Notice that there are 5 decimal places outputted in the mean values. We do not o
 adsl_eff %>%
   group_by( TRT01A, TRT01AN, SEX ) %>%
   summarize(mean = (mean( AGE ) %>% 
-                      round(digits =  ) %>%
-                      format(nsmall =  ))
+                      round(digits =  1) %>%
+                      format(nsmall =  1))
   )
 ```
 
@@ -107,12 +107,12 @@ Using the above information, finish the code below by creating a data frame name
 ```{r}
 age_stat<- adsl_eff %>%
   group_by(TRT01AN,TRT01A,SEX) %>%
-  summarize(mean = (mean( ) %>% round(digits = 1) %>% format(nsmall=1))  ,
-            sd = (sd( ) %>% round(digits = 1) %>% format(nsmall = 1)), 
-            med = median( )  ,              
-            min = min( ), 
-            max = max( ),
-            n = n())
+  summarize(mean = (mean( AGE ) %>% round(digits = 1) %>% format(nsmall=1))  ,
+            sd = (sd( AGE ) %>% round(digits = 1) %>% format(nsmall = 1)), 
+            med = (median( AGE )),              
+            min = (min( AGE )),  
+            max = (max( AGE )), 
+            n = (n()))
 
 age_stat
 ```
@@ -211,31 +211,31 @@ If you need to copy and paste code 3 times or more it's time to write a function
 You can quickly convert from code like this:
 
 ```{r}
-age_stat<- adsl_eff %>%
-  group_by(TRT01AN,TRT01A,SEX) %>%
-  summarize(mean = mean( ) %>% round(digits = 1) %>% format(nsmall=1)  ,
-            sd = sd( ) %>% round(digits = 1) %>% format(nsmall = 1), 
-            med = median( )  ,              
-            min = min( ), 
-            max = max( ),
-            n = n())
-
-age_stat
+# age_stat<- adsl_saf %>%
+#   group_by(TRT01AN,TRT01A,SEX) %>%
+#   summarize(mean = mean( ) %>% round(digits = 1) %>% format(nsmall=1)  ,
+#             sd = sd( ) %>% round(digits = 1) %>% format(nsmall = 1),
+#             med = median( )  ,
+#             min = min( ),
+#             max = max( ),
+#             n = n())
+# 
+# age_stat
 ```
 
 To a function like this:
 
 ```{r, eval = FALSE}
-varSummary <- function(adsl_eff, TRT01AN, TRT01A, SEX) {
-  adsl_saf %>%
-    group_by(TRT01AN,TRT01A,SEX) %>%
-    summarize(mean = mean( ) %>% round(digits = 1) %>% format(nsmall=1)  ,
-              sd = sd( ) %>% round(digits = 1) %>% format(nsmall = 1), 
-              med = median( )  ,              
-              min = min( ), 
-              max = max( ),
-              n = n())
-}
+# varSummary <- function(adsl_eff, TRT01AN, TRT01A, SEX) {
+#   adsl_saf %>%
+#     group_by(TRT01AN,TRT01A,SEX) %>%
+#     summarize(mean = mean( ) %>% round(digits = 1) %>% format(nsmall=1)  ,
+#               sd = sd( ) %>% round(digits = 1) %>% format(nsmall = 1), 
+#               med = median( )  ,              
+#               min = min( ), 
+#               max = max( ),
+#               n = n())
+# }
 ```
 
 using the "Extract function" in RStudio IDE's "Code" menu. You can then tidy this code to change the function arguments. You then want to abstract the code so that the user running the code has the ability to change the things that they need to change. This abstraction means that writing the code is a little more complex within the tidyverse - you need to refer to the variable within a dataset, and stop R from trying to find that variable as an object in your environment (top right tab in RStudio IDE).
@@ -243,35 +243,73 @@ using the "Extract function" in RStudio IDE's "Code" menu. You can then tidy thi
 Let's change the input data argument to .data to match what we see in {tidyverse} functions and add an argument that is the name of the variable in the dataset that we want to summarise. For now, let's assume that the function will summarise by `TRT01AN, TRT01A, SEX` regardless of which variable is being summarised:
 
 ```{r, eval = FALSE}
-varSummary <- function(.data, variable) {
-  .data %>%
-    group_by(TRT01AN,TRT01A,SEX) %>%
-    summarize(mean = mean(variable ) %>% round(digits = 1) %>% format(nsmall=1)  ,
-              sd = sd(variable) %>% round(digits = 1) %>% format(nsmall = 1), 
-              med = median(variable)  ,              
-              min = min(variable ), 
-              max = max(variable ),
-              n = n())
-}
-
-adsl_saf %>%
-  varSummary(AGE)
+# varSummary <- function(.data, variable) {
+#   .data %>%
+#     group_by(TRT01AN,TRT01A,SEX) %>%
+#     summarize(mean = mean(variable ) %>% round(digits = 1) %>% format(nsmall=1)  ,
+#               sd = sd(variable) %>% round(digits = 1) %>% format(nsmall = 1), 
+#               med = median(variable)  ,              
+#               min = min(variable ), 
+#               max = max(variable ),
+#               n = n())
+# }
+# 
+# adsl_saf %>%
+#   varSummary(AGE)
 ```
 
 The problem here is that R is looking for an object called AGE, which doesn't exist in the current Environment. Instead we need to tell R that the "AGE" argument that we pass should be interpreted within the scope of the data, rather than looking in the Environment. The secret is to enclose or "embrace" the variable in double quotes within the function. It's a bit like using a Macro variable in SAS.
 
 ```{r}
-varSummary <- function(.data = NULL, variable = NULL) {
-  .data %>%
-    group_by(TRT01AN,TRT01A,SEX) %>%
-    summarize(mean = mean({{variable}}) %>% round(digits = 1) %>% format(nsmall=1)  ,
-              sd = sd({{variable}}) %>% round(digits = 1) %>% format(nsmall = 1), 
-              med = median({{variable}})  ,              
-              min = min({{variable}}), 
-              max = max({{variable}}),
-              n = n())
+# varSummary <- function(.data = NULL, variable = NULL) {
+#   .data %>%
+#     group_by(TRT01AN,TRT01A,SEX) %>%
+#     summarize(mean = mean({{variable}}) %>% round(digits = 1) %>% format(nsmall=1)  ,
+#               sd = sd({{variable}}) %>% round(digits = 1) %>% format(nsmall = 1), 
+#               med = median({{variable}})  ,              
+#               min = min({{variable}}), 
+#               max = max({{variable}}),
+#               n = n())
+# }
+# 
+# adsl_saf %>%
+#   varSummary(AGE)
+```
+
+
+```{r}
+stat <- function(var){
+  adsl_eff %>%
+    group_by(TRT01AN, TRT01A, SEX) %>%
+    summarize(mean = (mean( {{var}} ) %>% round(digits = 1) %>% format(nsmall=1))  ,
+              sd = (sd( {{var}} ) %>% round(digits = 1) %>% format(nsmall = 1)), 
+              med = (median( {{var}} )),              
+              min = (min( {{var}} )),  
+              max = (max( {{var}} )), 
+              n = (n())) %>% 
+    mutate(range_minmax= paste0("(",min, ",", max, ")")) %>%   
+    ungroup() %>%
+    select("TRT01A","SEX", "n", "mean", "med", "sd", "range_minmax") %>% 
+    mutate(across(where(is.numeric), .fns = as.character)) %>%
+    pivot_longer(-c("TRT01A","SEX"), names_to ="category", values_to = "values" ) %>%
+    pivot_wider(names_from = c(TRT01A, SEX), values_from = values) %>%
+    mutate(category = case_when(category == "n" ~ "  N",
+                              category == "med" ~ "  Median", 
+                              category == "mean" ~ "  Mean", 
+                              category == "sd" ~ "  Std Dev", 
+                              category == "range_minmax" ~ "  Range(Min,Max)"))
+
+  
 }
 
-adsl_saf %>%
-  varSummary(AGE)
+section <- c("Age by years", "Weight at baseline", "Height at baseline")
+
+all_stat <- rbind(section[1], stat(AGE), section[2], stat(WEIGHTBL), section[3], stat(HEIGHTBL))
+
+all_stat[1, 2:ncol(all_stat)] <- ""
+all_stat[7, 2:ncol(all_stat)] <- ""
+all_stat[13, 2:ncol(all_stat)] <- ""
+              
+all_stat_fin <- data.frame(all_stat)
+all_stat_fin
 ```
