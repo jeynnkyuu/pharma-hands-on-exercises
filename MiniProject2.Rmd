@@ -363,7 +363,7 @@ Generate Counts and Percentages of Body Text Term (AEBODSYS) for Safety Populati
 adae <- import( file = "https://github.com/phuse-org/phuse-scripts/raw/master/data/adam/cdisc/adae.xpt"  )
 adae
 
-Big_N_cnt <- adae_saf %>%
+Big_N_cnt <- adae %>%
   filter(SAFFL=="Y") %>% 
   count(name = "N")
  
