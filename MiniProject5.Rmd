@@ -297,10 +297,79 @@ SysBP_plot +
 Do the same for Diastolic BP and Temperature. Ensure that the axes labels match the type of data used.\
 Update `plot4` for the new endpoint.
 
+```{r}
+param_plot <- function(paramn=NULL){
+  
+  data <- ADVS %>% 
+  filter(PARAMN == {{paramn}}) %>%
+  filter(VISITNUM > 3) 
+
+  var <- plot4 %+%
+  data
+
+  xLab <- quo_name(var$mapping$x)
+  yLab <- quo_name(var$mapping$y)
+  groupLab <- quo_name(var$mapping$group)
+  
+  study <- uniqueVal(var$data$STUDYID)
+  measure <- uniqueVal(var$data$PARAM)
+
+  xLab <- ifelse(xLab == "ADY", "Analysis Relative Day", xLab)
+  groupLab <- case_when(groupLab == "USUBJID" ~ "Subject", 
+                        groupLab == "TRTA" ~ "Treatment",
+                        TRUE ~ groupLab)
+
+  var + 
+    labs(title = glue::glue("Study {study}"),
+         subtitle = glue::glue("Plot of {measure} by {groupLab}"),
+         x = xLab,
+         y = glue::glue("{measure}")) +
+    theme(legend.position = "none")
+  
+}
+
+
+
+DiaBP_plot <- param_plot(2)
+DiaBP_plot
+
+
+temp_plot <- param_plot(6) 
+temp_plot
+```
+
 ## Extra challenge
 
 Read in vital signs data from another study which uses the `VS` or `ADVS` dataset standards. What code needs to change when you produce Pulse Rate plot for the new dataset (compared to the Pulse Rate plot which uses data values to determine labels)?
 
 ```{r}
-sessioninfo::session_info()
+advs <- import("https://github.com/phuse-org/phuse-scripts/raw/master/data/adam/cdiscpilot01/advs.xpt")
+
+pr <-  advs %>% 
+    filter(PARAMN == 3) %>% 
+    filter(SAFFL == "Y" & VISITNUM > 3 & AGE < 60)
+
+plot1 <- ggplot(data = pr, mapping = aes(x = ADY, y = AVAL, group = USUBJID, color = USUBJID)) +
+    geom_line()
+plot1
+
+xLab <- quo_name(plot1$mapping$x)
+yLab <- quo_name(plot1$mapping$y)
+groupLab <- quo_name(plot1$mapping$group)
+  
+study <- uniqueVal(plot1$data$STUDYID)
+measure <- "Pulse Rate (Beats/Min)" 
+  #uniqueVal(plot1$data$PARAM)
+
+plot2 <- plot1 +
+    labs(title = glue::glue("Study {study}"),
+          subtitle = glue::glue("Plot of {measure} by {groupLab}"),
+          x = "Day within study period",
+          y = glue::glue("{measure}"),
+          caption = paste("Plot Created on: ", Sys.Date())) +
+          theme_minimal() +
+          facet_wrap(facets = "TRTA")
+plot2
+
+# sessioninfo::session_info()
 ```
