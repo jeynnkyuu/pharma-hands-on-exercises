@@ -152,8 +152,10 @@ If you spend a fair amount of time setting up and adjusting a graph to be just t
 #   ggplot({1:data}, aes(x=${2:variable}, y=${3:variable})) + 
 #   geom_col(color = "black", fill="#0072B2") +
 #   theme_minimal() +
-#   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank(), axis.line = element_line(colour = "gray"),
+#   theme(panel.border = element_blank(), 
+#           panel.grid.major = element_blank(),
+#           panel.grid.minor = element_blank(), 
+#           axis.line = element_line(colour = "gray"),
 #         plot.title = element_text(hjust = 0.5),
 #         plot.subtitle = element_text(hjust = 0.5)
 #   ) +
@@ -190,8 +192,6 @@ If you spend a fair amount of time setting up and adjusting a graph to be just t
 #     ggtitle("${4:Main Title}", subtitle = "${5:Subtitle}")
 # }
 ######################################################################
-
-
 
 ```
 

@@ -953,7 +953,7 @@ times. Which is just unnecessary. We now know about functions. So what
 could we do here? Copy and paste your tidied code above into the chunk
 below and try to resolve this issue using your experience at writing
 functions.</p>
-<pre class="r"><code>summarize_by_group &lt;- function(data, group_var) {
+<pre class="r"><code>summ_by_grp &lt;- function(data, group_var) {
   group_var &lt;- rlang::ensym(group_var)  # capture the variable name
   
   big_n_cnt &lt;- data %&gt;%
@@ -978,20 +978,20 @@ functions.</p>
   return(result)
 }
 
-summarize_by_group(adsl_saf, SEX)</code></pre>
+summ_by_grp(adsl_saf, SEX)</code></pre>
 <pre><code>## # A tibble: 2 × 4
 ##   SEX   Placebo   `Xanomeline Low Dose` `Xanomeline High Dose`
 ##   &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;                 &lt;chr&gt;                 
 ## 1 F     53 (61.6) 50 (59.5)             40 (47.6)             
 ## 2 M     33 (38.4) 34 (40.5)             44 (52.4)</code></pre>
-<pre class="r"><code>summarize_by_group(adsl_saf, AGEGR1)</code></pre>
+<pre class="r"><code>summ_by_grp(adsl_saf, AGEGR1)</code></pre>
 <pre><code>## # A tibble: 3 × 4
 ##   AGEGR1 Placebo   `Xanomeline Low Dose` `Xanomeline High Dose`
 ##   &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;                 &lt;chr&gt;                 
 ## 1 65-80  42 (48.8) 47 (56.0)             55 (65.5)             
 ## 2 &lt;65    14 (16.3) 8 (9.5)               11 (13.1)             
 ## 3 &gt;80    30 (34.9) 29 (34.5)             18 (21.4)</code></pre>
-<pre class="r"><code>summarize_by_group(adsl_saf, RACE)</code></pre>
+<pre class="r"><code>summ_by_grp(adsl_saf, RACE)</code></pre>
 <pre><code>## # A tibble: 3 × 4
 ##   RACE                      Placebo `Xanomeline Low Dose` `Xanomeline High Dose`
 ##   &lt;chr&gt;                     &lt;chr&gt;   &lt;chr&gt;                 &lt;chr&gt;                 

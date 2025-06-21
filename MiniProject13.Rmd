@@ -382,7 +382,7 @@ Note also that the code calculates the `BIGNcnt` three times. Which is just unne
 
 ```{r}
 
-summarize_by_group <- function(data, group_var) {
+summ_by_grp <- function(data, group_var) {
   group_var <- rlang::ensym(group_var)  # capture the variable name
   
   big_n_cnt <- data %>%
@@ -407,10 +407,9 @@ summarize_by_group <- function(data, group_var) {
   return(result)
 }
 
-summarize_by_group(adsl_saf, SEX)
-summarize_by_group(adsl_saf, AGEGR1)
-summarize_by_group(adsl_saf, RACE)
-
+summ_by_grp(adsl_saf, SEX)
+summ_by_grp(adsl_saf, AGEGR1)
+summ_by_grp(adsl_saf, RACE)
 
 ```
 
