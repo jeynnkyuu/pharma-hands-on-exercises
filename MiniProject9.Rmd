@@ -351,3 +351,38 @@ ggplot(data = BICARB,
        mapping = aes(x = ADY, y = AVAL)) +
   geom_point(aes(colour = "THERAPY1"))
 ```
+```{r}
+### Challenge: What Went wrong here
+# THERAPHY1 is not a variable, hence, we cannot use it as a grouping variable
+# Use TRTA instead to properly group the values by color
+ggplot(data = BICARB,
+       mapping = aes(x = ADY, y = AVAL)) +
+  geom_point(aes(colour = TRTA))
+```
+
+
+```{r}
+### Create a more minimal reprex that will help someone else understand and help you fix the problem.
+# Create data using tribble() function
+library(tidyverse)
+library(haven)
+
+myData <- tribble(
+  ~ADY, ~AVAL, ~TRTA,
+  2, 15, "Treatment A",
+  -3, 20, "Treatment A",
+  10, 39, "Treatment A",
+  4, 23, "Treatment A",
+  113, 21.9, "Treatment A",
+  -34, 18, "Treatment B",
+  45, 45.9, "Treatment B",
+  99, 7.9, "Treatment B",
+  -25, 2.3, "Treatment B",
+  18, 34.9, "Treatment B"
+)
+
+
+ggplot(data = myData,
+       mapping = aes(x = ADY, y = AVAL)) +
+  geom_point(aes(colour = "THERAPY1"))
+```

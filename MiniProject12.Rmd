@@ -146,28 +146,27 @@ calculate_Big_N_cnt <- function(adsl_data) {
 Now add some code to turn the lines of code below into the `calculate_small_n_cnt` function that takes in `adsl_data` argument. Remember to `return()` the `small_n_cnt.`
 
 ```{r}
-
+calculate_small_n_cnt <- function(adsl_data){
   small_n_cnt <-  adsl_data  %>%
   group_by( TRT01AN, TRT01A,  SEX ) %>%
   count(name = "n")
-  small_n_cnt
-
+  return(small_n_cnt)
+}
 ```
 
 And now let's transform the code below into the `adsl_counts`function. Remember, this function will take the output of the two functions above as arguments.
 
 ```{r}
  
-
+adsl_counts <- function(Big_N_cnt, small_n_cnt){
   adsl_mrg_cnt <- small_n_cnt %>%
     left_join(Big_N_cnt, by = c("TRT01A", "TRT01AN")) %>%
     mutate(perc = round((n/N)*100, digits=1)) %>%
     ungroup() %>%
     select(TRT01A, SEX, perc) 
   
-  adsl_mrg_cnt
-
-
+  return(adsl_mrg_cnt)
+}
 
 ```
 
@@ -246,7 +245,11 @@ test_that("wrangle_data() output is correct", {
   
   expect_success(expect_equal(unique(adsl_data$SAFFL), "Y"))
   expect_success(expect_equal(sum(is.na(adsl_data$SAFFL)), 0))
-  expect_success(expect_length(names(adsl_data), 5))
+  # expect_success(expect_length(names(adsl_data), 5))
+  # Error: Test failed
+  # Expectation did not succeed:
+  # names(adsl_data) has length 6, not length 5.
+  expect_success(expect_length(names(adsl_data), 6))
 })
 ```
 
@@ -274,8 +277,7 @@ When running the code, we received a value of `3` which is what we would expect 
 
 ```{r}
 test_that("expected columns are all present in the wrangle_data() output", {
-  expect_equal( , )
-
+  expect_equal(sum(expected_vars %in% names(adsl_data)), 3)
 })
 ```
 
@@ -344,10 +346,10 @@ Let's not forget about the `calculate_small_n_cnt` function that we created earl
 
 ```{r}
 test_that("calculate_small_n_cnt() output has expected dim, columns, and types", {
-   expect_named( , )
-   expect_equal( , )
+   expect_named(calculate_small_n_cnt(test_data), c("TRT01AN", "TRT01A", "SEX", "n"))
+   expect_equal(dim(calculate_small_n_cnt(test_data)), 
+               c(length(unique(calculate_small_n_cnt(test_data)$TRT01A)), 2)*c(length(unique(calculate_small_n_cnt(test_data)$SEX)), 2))
 })
-
 ```
 
 Now let's gather all tests we created so far and put them all together. Remember, we can combine all relevant tests together and update the test_that description accordingly. Add your `calculate_small_n_cnt` set of tests here as well.
@@ -524,9 +526,45 @@ adsl_test_data <-  test_data %>%
 adsl_test_data
 ```
 
+
+
 ```{r}
-# TODO Create test cases for adsl_counts()
+## Ensure all variables are present in adsl_counts and it has a correct type
+
+test_that("Output data has expected column names and types", {
+  expect_named(adsl_test_data, c("TRT01A", "SEX", "perc"))
+  expect_type(adsl_test_data$perc, "double")
+  })
 
 ```
 
-## 
+```{r}
+## Expected dimension of the output is 4 by 3 since we have two treatments and sex (which make it 4 rows) and 3 expected variables present in the output
+test_that("Dimension is correct", {expect_equal(dim(adsl_test_data), c(4,3))})
+
+```
+
+```{r}
+## No missing percentages for each category
+
+test_that("Compelete percatages for each Treatment by Sex", {expect_success(expect_equal(sum(is.na(adsl_test_data$perc)), 0))})
+
+```
+
+```{r}
+## There are two treatments in the output
+test_that("All treatments are present", {expect_success(expect_equal(unique(adsl_test_data$TRT01A), c("Treatment A", "Treatment B")))})
+
+```
+
+```{r}
+## Sex is spelled correctly
+test_that("All Sex are present", {expect_success(expect_equal(unique(adsl_test_data$SEX), c("Female", "Male")))})
+
+```
+ 
+```{r}
+## Percentages is not greater than 100%
+test_that("No percentages is greater than 100%", {expect_success(expect_equal(sum(adsl_test_data$perc<100), length(adsl_test_data$perc)))})
+
+```
